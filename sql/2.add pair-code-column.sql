@@ -1,0 +1,1 @@
+ALTER TABLE funding_nodes ADD COLUMN pair_code CHAR(255) NULL;
