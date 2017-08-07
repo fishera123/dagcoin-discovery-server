@@ -34,8 +34,15 @@ function insertFundingNodeMessage(deviceAddress, status){
 	);
 }
 
-function updateExchangeFee(deviceAddress, exchangeFee){
-	db.query("UPDATE funding_nodes SET exchange_fee=? WHERE device_address=?", [exchangeFee, deviceAddress]);
+function updateSettings(deviceAddress, settings){
+	db.query("UPDATE funding_nodes SET exchange_fee=?, total_bytes=?, bytes_per_address=?, max_end_user_capacity=? WHERE device_address=?", 
+		[
+			settings.exchangeFee, 
+			settings.totalBytes, 
+			settings.bytesPerAddress,
+			settings.maxEndUserCapacity,
+			deviceAddress
+		]);
 }
 
 function updatePairCode(deviceAddress, pairCode){
@@ -121,11 +128,11 @@ function processCommand(deviceAddress, text){
 				sendMessageToDevice(deviceAddress, formatListOfNodes([]));
 			}
 		});
-	} else if(command === 'UPDATE_EXCHANGE_FEE'){
-		var exchangeFee = message.messageBody.exchangeFee;
+	} else if(command === 'UPDATE_SETTINGS'){
+		var settings = message.messageBody.settings;
 		
-		if (exchangeFee){
-			updateExchangeFee(deviceAddress, exchangeFee);
+		if (settings){
+			updateSettings(deviceAddress, settings);
 		}
 	} 
 	
