@@ -92,7 +92,7 @@ function formatListOfNodes(listOfNodes){
 
 function processCommand(deviceAddress, text){
 	if (!isJsonString(text)){
-		return;
+		return sendUnrecognizedCommand(deviceAddress, text);
 	}
 	
 	var message = JSON.parse(text);
