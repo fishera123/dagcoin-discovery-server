@@ -15,8 +15,8 @@ function sendMessageToDevice(deviceAddress, text){
 
 function sendUnrecognizedCommand(deviceAddress, command){
 	var result = {messageType: 'UNRECOGNIZED', messageBody: {command: command}};
-	
-	sendMessageToDevice(deviceAddress, result);
+	var text = JSON.stringify(result);
+	sendMessageToDevice(deviceAddress, text);
 }
 
 function insertFundingNodeMessage(deviceAddress, status){
