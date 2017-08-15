@@ -18,7 +18,8 @@ var DiscoveryService = function (device) {
 
     function sendResponse(deviceAddress, response){
         var text = JSON.stringify(response);
-        sendMessageToDevice(deviceAddress, response);
+        
+        sendMessageToDevice(deviceAddress, text);
     }
 
     function insertFundingNodeMessage(deviceAddress, status){
