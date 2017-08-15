@@ -73,9 +73,9 @@ var DiscoveryService = function (device) {
                             exchangeFee: rows[i].exchange_fee,
                             pairCode: rows[i].pair_code
                         });
-
-                        return callBack(result);
                     }
+                    
+                    return callBack(result);
                 }
                 else{
                     return callBack(null);
