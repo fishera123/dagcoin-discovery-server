@@ -6,7 +6,7 @@
   "main": "start.js",
   "keywords": [
     "discovery",
-	"server",
+    "server",
     "dagcoin"
   ],
   "license": "MIT",
@@ -21,5 +21,8 @@
   "dependencies": {
     "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
     "headless-byteball": "git+https://github.com/byteball/headless-byteball.git"
+  },
+  "devDependencies": {
+    "jasmine": "^2.7.0"
   }
 }

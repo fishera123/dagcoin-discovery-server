@@ -15,8 +15,9 @@ eventBus.on('paired', function(deviceAddress){
 
 eventBus.on('text', function(deviceAddress, text){
     var device = require('byteballcore/device.js');
+    var db = require('byteballcore/db.js');
     var ds = require('./discovery-service.js');
-	var discoveryService = new ds.DiscoveryService(device);
+	var discoveryService = new ds.DiscoveryService(device, db);
     discoveryService.processCommand(deviceAddress, text);
 });
 

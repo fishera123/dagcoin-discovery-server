@@ -1,7 +1,6 @@
 "use strict";
-var db = require('byteballcore/db.js');
 
-var DiscoveryService = function (device) {
+var DiscoveryService = function (device, db) {
     const commands = {
         startingTheBusiness: 'STARTING_THE_BUSINESS',
         aliveAndWell: 'ALIVE_AND_WELL',
