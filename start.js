@@ -39,6 +39,7 @@ function processAsDagcoinMessage(deviceAddress, body) {
         message = JSON.parse(body);
     } catch (err) {
         console.log(`NEW MESSAGE FROM ${deviceAddress}: ${body} NOT A JSON MESSAGE: ${err}`);
+        return;
     }
 
     if (message === null) {
@@ -57,7 +58,7 @@ function processAsDagcoinMessage(deviceAddress, body) {
     var db = require('byteballcore/db.js');
     var ds = require('./discovery-service.js');
     var discoveryService = new ds.DiscoveryService(device, db);
-    discoveryService.processCommand(deviceAddress, text);
+    discoveryService.processCommand(deviceAddress, body);
 }
 
 module.exports = headlessWallet;
