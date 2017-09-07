@@ -14,7 +14,7 @@ eventBus.on('text', function (deviceAddress, text) {
 });
 
 // One device can send such message to check whether another device can exchange messages
-eventBus.on('dagcoin.is-connected', (message, fromAddress) => {
+eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
     const reply = {
         protocol: 'dagcoin',
         title: 'connected'
@@ -22,6 +22,15 @@ eventBus.on('dagcoin.is-connected', (message, fromAddress) => {
 
     const device = require('byteballcore/device.js');
     device.sendMessageToDevice(fromAddress, 'text', JSON.stringify(reply));
+});
+
+// This is a message related to funds exchange
+eventBus.on('dagcoin.funds-exchange-message', (deviceAddress, message) => {
+    var device = require('byteballcore/device.js');
+    var db = require('byteballcore/db.js');
+    var ds = require('./discovery-service.js');
+    var discoveryService = new ds.DiscoveryService(device, db);
+    discoveryService.processCommand(deviceAddress, message);
 });
 
 /**
@@ -49,16 +58,18 @@ function processAsDagcoinMessage(deviceAddress, body) {
 
     if (message.protocol === 'dagcoin') {
         console.log(`DAGCOIN MESSAGE RECEIVED FROM ${deviceAddress}`);
-        eventBus.emit(`dagcoin.${message.title}`, message, deviceAddress);
+        eventBus.emit(`dagcoin.${message.title}`, deviceAddress, message);
         return;
     }
 
     console.log(`JSON MESSAGE RECEIVED FROM ${deviceAddress} WITH UNEXPECTED PROTOCOL: ${message.protocol}`);
     var device = require('byteballcore/device.js');
-    var db = require('byteballcore/db.js');
-    var ds = require('./discovery-service.js');
-    var discoveryService = new ds.DiscoveryService(device, db);
-    discoveryService.processCommand(deviceAddress, body);
+
+    device.sendMessageToDevice(deviceAddress, 'text', JSON.stringify({
+        protocol: 'dagcoin',
+        title: 'error',
+        errorMessage: 'ONLY ACCEPTING MESSAGES WITH dagcoin PROTOCOL'
+    }));
 }
 
 module.exports = headlessWallet;

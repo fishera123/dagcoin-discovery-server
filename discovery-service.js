@@ -92,21 +92,18 @@ var DiscoveryService = function (device, db) {
         return true;
     }
 
-    function processCommand(deviceAddress, text){
-        var command = null;
-        var message = null;
-
-        if (isJsonString(text)){
-            message = JSON.parse(text);
-            if (message && message.messageType){
-                command = message.messageType.toUpperCase();
-            }
-        }
-
-        if (!command) {
-            sendResponse(deviceAddress, {messageType: commands.unrecognized, messageBody: { request: text }, success: false});
+    function processCommand(deviceAddress, message){
+        if (!message) {
+            sendResponse(deviceAddress, {messageType: commands.unrecognized, messageBody: { request: 'EMPTY REQUEST' }, success: false});
             return;
         }
+
+        if (!message.messageType) {
+            sendResponse(deviceAddress, {messageType: commands.unrecognized, messageBody: { request: 'NO MESSAGE TYPE' }, success: false});
+            return;
+        }
+
+        const command = message.messageType.toUpperCase();
 
         var response = {
             messageType: command,
