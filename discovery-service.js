@@ -1,4 +1,5 @@
 "use strict";
+var eventBus = require('byteballcore/event_bus.js');
 
 var DiscoveryService = function (device, db) {
     const commands = {
