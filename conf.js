@@ -16,6 +16,8 @@ exports.payout_address = 'WHERE THE MONEY CAN BE SENT TO';
 
 exports.KEYS_FILENAME = 'keys.json';
 
-exports.PASSPHRASE = 'ILAGIN';
+exports.PASSPHRASE = '123';
+
+exports.port = 7000
 
 console.log('Finished server configuration');

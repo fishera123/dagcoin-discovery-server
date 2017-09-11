@@ -5,9 +5,9 @@ var headlessWallet = require('headless-byteball');
 var ds = require('./discovery-service.js');
 
 eventBus.on('paired', function (deviceAddress) {
-    if (headlessWallet.isControlAddress(deviceAddress)) {
+    // if (headlessWallet.isControlAddress(deviceAddress)) {
         headlessWallet.handlePairing(deviceAddress);
-    }
+    // }
 });
 
 eventBus.on('text', function (deviceAddress, text) {
@@ -27,10 +27,7 @@ eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
 
 // This is a message related to funds exchange
 eventBus.on('dagcoin.funds-exchange-message', (deviceAddress, message) => {
-    var device = require('byteballcore/device.js');
-    var db = require('byteballcore/db.js');
-    var discoveryService = new ds.DiscoveryService(device, db);
-    discoveryService.processCommand(deviceAddress, message);
+    ds.processCommand(deviceAddress, message);
 });
 
 /**
@@ -71,5 +68,7 @@ function processAsDagcoinMessage(deviceAddress, body) {
         errorMessage: 'ONLY ACCEPTING MESSAGES WITH dagcoin PROTOCOL'
     }));
 }
+
+ds.registerListeners();
 
 module.exports = headlessWallet;
