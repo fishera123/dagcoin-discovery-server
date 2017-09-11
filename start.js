@@ -2,6 +2,7 @@
 "use strict";
 var eventBus = require('byteballcore/event_bus.js');
 var headlessWallet = require('headless-byteball');
+var ds = require('./discovery-service.js');
 
 eventBus.on('paired', function (deviceAddress) {
     if (headlessWallet.isControlAddress(deviceAddress)) {
@@ -28,7 +29,6 @@ eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
 eventBus.on('dagcoin.funds-exchange-message', (deviceAddress, message) => {
     var device = require('byteballcore/device.js');
     var db = require('byteballcore/db.js');
-    var ds = require('./discovery-service.js');
     var discoveryService = new ds.DiscoveryService(device, db);
     discoveryService.processCommand(deviceAddress, message);
 });

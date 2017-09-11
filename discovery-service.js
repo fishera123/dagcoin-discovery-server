@@ -148,6 +148,20 @@ var DiscoveryService = function (device, db) {
         sendResponse(deviceAddress, response);
     }
 
+    eventBus.on(`dagcoin.request.${commands.listTraders}`, (deviceAddress, message) => {
+        var response = {
+            messageType: commands.listTraders,
+            messageBody: null,
+            success: true
+        };
+
+        getListOfFundingNodes(deviceAddress, function(listOfNodes){
+            var nodes = listOfNodes || [];
+            response.messageBody = {traders: nodes};
+            sendResponse(deviceAddress, response);
+        });
+    });
+
     return {
         processCommand: processCommand,
         commands: commands
