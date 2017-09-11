@@ -17,7 +17,7 @@ var DiscoveryService = function (device, db) {
 
     function sendResponse(deviceAddress, response){
         response.protocol = 'dagcoin';
-        response.title = 'funds-exchange-message';
+        response.title = `response.${response.messageType}`;
 
         var text = JSON.stringify(response);
         
