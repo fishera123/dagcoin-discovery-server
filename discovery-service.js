@@ -27,10 +27,10 @@ exports.sendResponse = (deviceAddress, response) => {
 }
 
 exports.insertFundingNodeMessage = (deviceAddress, status) => {
-    if (commands.startingTheBusiness !== status &&
-        commands.temporarilyUnavailable !== status &&
-        commands.outOfBusiness !== status &&
-        commands.aliveAndWell !== status) {
+    if (this.commands.startingTheBusiness !== status &&
+        this.commands.temporarilyUnavailable !== status &&
+        this.commands.outOfBusiness !== status &&
+        this.commands.aliveAndWell !== status) {
         return;
     }
 
@@ -101,12 +101,12 @@ exports.isJsonString = (str) => {
 
 exports.processCommand = (deviceAddress, message) => {
     if (!message) {
-        this.sendResponse(deviceAddress, {messageType: commands.unrecognized, messageBody: { request: 'EMPTY REQUEST' }, success: false});
+        this.sendResponse(deviceAddress, {messageType: this.commands.unrecognized, messageBody: { request: 'EMPTY REQUEST' }, success: false});
         return;
     }
 
     if (!message.messageType) {
-        this.sendResponse(deviceAddress, {messageType: commands.unrecognized, messageBody: { request: 'NO MESSAGE TYPE' }, success: false});
+        this.sendResponse(deviceAddress, {messageType: this.commands.unrecognized, messageBody: { request: 'NO MESSAGE TYPE' }, success: false});
         return;
     }
 
@@ -121,23 +121,23 @@ exports.processCommand = (deviceAddress, message) => {
     this.insertFundingNodeMessage(deviceAddress, command);
 
     switch (command) {
-        case commands.startingTheBusiness:
-        case commands.temporarilyUnavailable:
-        case commands.outOfBusiness:
+        case this.commands.startingTheBusiness:
+        case this.commands.temporarilyUnavailable:
+        case this.commands.outOfBusiness:
             break;
-        case commands.aliveAndWell:
+        case this.commands.aliveAndWell:
             if (message.messageBody && message.messageBody.pairCode){
                 this.updatePairCode(deviceAddress, message.messageBody.pairCode);
             }
             break;
-        case commands.listTraders:
+        case this.commands.listTraders:
             this.getListOfFundingNodes(deviceAddress, function(listOfNodes){
                 var nodes = listOfNodes || [];
                 response.messageBody = {traders: nodes};
                 this.sendResponse(deviceAddress, response);
             });
             return;
-        case commands.updateSettings:
+        case this.commands.updateSettings:
             var settings = message.messageBody.settings;
 
             if (settings){
@@ -153,9 +153,9 @@ exports.processCommand = (deviceAddress, message) => {
 }
 
 exports.registerListeners = () => {
-    eventBus.on(`dagcoin.request.${commands.listTraders}`, (deviceAddress, message) => {
+    eventBus.on(`dagcoin.request.${this.commands.listTraders}`, (deviceAddress, message) => {
         var response = {
-            messageType: commands.listTraders,
+            messageType: this.commands.listTraders,
             messageBody: null,
             success: true
         };
