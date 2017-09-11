@@ -1,16 +1,17 @@
 "use strict";
 var eventBus = require('byteballcore/event_bus.js');
 
+const commands = {
+    startingTheBusiness: 'STARTING_THE_BUSINESS',
+    aliveAndWell: 'ALIVE_AND_WELL',
+    temporarilyUnavailable: 'TEMPORARILY_UNAVAILABLE',
+    outOfBusiness: 'OUT_OF_BUSINESS',
+    listTraders: 'LIST_TRADERS',
+    updateSettings: 'UPDATE_SETTINGS',
+    unrecognized: 'UNRECOGNIZED'
+};
+
 var DiscoveryService = function (device, db) {
-    const commands = {
-        startingTheBusiness: 'STARTING_THE_BUSINESS',
-        aliveAndWell: 'ALIVE_AND_WELL',
-        temporarilyUnavailable: 'TEMPORARILY_UNAVAILABLE',
-        outOfBusiness: 'OUT_OF_BUSINESS',
-        listTraders: 'LIST_TRADERS',
-        updateSettings: 'UPDATE_SETTINGS',
-        unrecognized: 'UNRECOGNIZED'
-    };
 
     function sendMessageToDevice(deviceAddress, text){
         device.sendMessageToDevice(deviceAddress, 'text', text);
@@ -149,24 +150,24 @@ var DiscoveryService = function (device, db) {
         sendResponse(deviceAddress, response);
     }
 
-    eventBus.on(`dagcoin.request.${commands.listTraders}`, (deviceAddress, message) => {
-        var response = {
-            messageType: commands.listTraders,
-            messageBody: null,
-            success: true
-        };
-
-        getListOfFundingNodes(deviceAddress, function(listOfNodes){
-            var nodes = listOfNodes || [];
-            response.messageBody = {traders: nodes};
-            sendResponse(deviceAddress, response);
-        });
-    });
-
     return {
         processCommand: processCommand,
         commands: commands
 	}
 };
+
+eventBus.on(`dagcoin.request.${commands.listTraders}`, (deviceAddress, message) => {
+    var response = {
+        messageType: commands.listTraders,
+        messageBody: null,
+        success: true
+    };
+
+    getListOfFundingNodes(deviceAddress, function(listOfNodes){
+        var nodes = listOfNodes || [];
+        response.messageBody = {traders: nodes};
+        sendResponse(deviceAddress, response);
+    });
+});
 
 exports.DiscoveryService = DiscoveryService;
