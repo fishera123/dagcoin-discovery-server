@@ -1,21 +1,37 @@
 /*jslint node: true */
 "use strict";
-var eventBus = require('byteballcore/event_bus.js');
-var headlessWallet = require('headless-byteball');
-var ds = require('./discovery-service.js');
+const eventBus = require('byteballcore/event_bus.js');
+const headlessWallet = require('headless-byteball');
+const ds = require('./discovery-service.js');
+
+eventBus.on('headless_wallet_ready', function() {
+    console.log('WALLET IS READY')
+    try {
+        console.log('REGISTERING LISTENERS ... ');
+        ds.init();
+        console.log('DONE REGISTERING LISTENERS');
+    } catch(e) {
+        console.error(e);
+        process.exit();
+    }
+});
 
 eventBus.on('paired', function (deviceAddress) {
+    console.log('PAIR REQUEST');
     // if (headlessWallet.isControlAddress(deviceAddress)) {
         headlessWallet.handlePairing(deviceAddress);
     // }
 });
 
 eventBus.on('text', function (deviceAddress, text) {
+    console.log('TEXT REQUEST');
     processAsDagcoinMessage(deviceAddress, text);
 });
 
 // One device can send such message to check whether another device can exchange messages
 eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
+    console.log('DAGCOIN CONNECTION REQUEST');
+
     const reply = {
         protocol: 'dagcoin',
         title: 'connected'
@@ -23,11 +39,6 @@ eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
 
     const device = require('byteballcore/device.js');
     device.sendMessageToDevice(fromAddress, 'text', JSON.stringify(reply));
-});
-
-// This is a message related to funds exchange
-eventBus.on('dagcoin.funds-exchange-message', (deviceAddress, message) => {
-    ds.processCommand(deviceAddress, message);
 });
 
 /**
@@ -39,6 +50,8 @@ eventBus.on('dagcoin.funds-exchange-message', (deviceAddress, message) => {
  * @returns {Promise}
  */
 function processAsDagcoinMessage(deviceAddress, body) {
+    console.log('PROCESSING MESSAGE AS DAGCOIN COMMAND');
+
     let message = null;
 
     try {
@@ -68,7 +81,5 @@ function processAsDagcoinMessage(deviceAddress, body) {
         errorMessage: 'ONLY ACCEPTING MESSAGES WITH dagcoin PROTOCOL'
     }));
 }
-
-ds.registerListeners();
 
 module.exports = headlessWallet;

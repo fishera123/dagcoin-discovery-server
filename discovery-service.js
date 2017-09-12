@@ -1,7 +1,7 @@
 "use strict";
-var eventBus = require('byteballcore/event_bus.js');
-const device = require('byteballcore/device.js');
-var db = require('byteballcore/db.js');
+exports.eventBus = null;
+exports.device = null;
+exports.db = null;
 
 exports.commands = {
     startingTheBusiness: 'STARTING_THE_BUSINESS',
@@ -14,7 +14,7 @@ exports.commands = {
 };
 
 exports.sendMessageToDevice = (deviceAddress, text) => {
-    device.sendMessageToDevice(deviceAddress, 'text', text);
+    this.device.sendMessageToDevice(deviceAddress, 'text', text);
 }
 
 exports.sendResponse = (deviceAddress, response) => {
@@ -39,17 +39,17 @@ exports.insertFundingNodeMessage = (deviceAddress, status) => {
         [deviceAddress],
         function(rows){
             if (rows.length > 0){
-                db.query("UPDATE funding_nodes SET status=?, status_date=DATETIME('now') WHERE device_address=?", [status, deviceAddress]);
+                this.db.query("UPDATE funding_nodes SET status=?, status_date=DATETIME('now') WHERE device_address=?", [status, deviceAddress]);
             }
             else{
-                db.query("INSERT INTO funding_nodes (status, device_address) VALUES (?,?)", [status, deviceAddress]);
+                this.db.query("INSERT INTO funding_nodes (status, device_address) VALUES (?,?)", [status, deviceAddress]);
             }
         }
     );
 }
 
 exports.updateSettings = (deviceAddress, settings) => {
-    db.query(
+    this.db.query(
         "UPDATE funding_nodes SET exchange_fee=?, total_bytes=?, bytes_per_address=?, max_end_user_capacity=? WHERE device_address=?",
         [
             settings.exchangeFee,
@@ -62,13 +62,13 @@ exports.updateSettings = (deviceAddress, settings) => {
 }
 
 exports.updatePairCode = (deviceAddress, pairCode) => {
-    db.query("UPDATE funding_nodes SET pair_code=? WHERE device_address=?", [pairCode, deviceAddress]);
+    this.db.query("UPDATE funding_nodes SET pair_code=? WHERE device_address=?", [pairCode, deviceAddress]);
 }
 
 exports.getListOfFundingNodes = (deviceAddress, callBack) => {
     var result = [];
 
-    db.query(
+    this.db.query(
         "SELECT device_address, exchange_fee, pair_code FROM funding_nodes WHERE device_address <> ? AND status = 'ALIVE_AND_WELL' AND DATETIME(status_date, '+10 minutes') > DATETIME('now')",
         [deviceAddress],
         function(rows){
@@ -152,18 +152,30 @@ exports.processCommand = (deviceAddress, message) => {
     this.sendResponse(deviceAddress, response);
 }
 
-exports.registerListeners = () => {
-    eventBus.on(`dagcoin.request.${this.commands.listTraders}`, (deviceAddress, message) => {
+exports.init = () => {
+    this.eventBus = require('byteballcore/event_bus.js');
+    this.device = require('byteballcore/device.js');
+    this.db = require('byteballcore/db.js');
+
+    const self = this;
+
+    console.log('REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
+
+    this.eventBus.on(`dagcoin.request.${this.commands.listTraders}`, (deviceAddress, message) => {
+        console.log('REACTING TO A REQUEST');
+
         var response = {
-            messageType: this.commands.listTraders,
+            messageType: self.commands.listTraders,
             messageBody: null,
             success: true
         };
 
-        this.getListOfFundingNodes(deviceAddress, function(listOfNodes){
+        self.getListOfFundingNodes(deviceAddress, function(listOfNodes){
             var nodes = listOfNodes || [];
             response.messageBody = {traders: nodes};
-            this.sendResponse(deviceAddress, response);
+            self.sendResponse(deviceAddress, response);
         });
     });
+
+    console.log('FINISHED REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
 }
