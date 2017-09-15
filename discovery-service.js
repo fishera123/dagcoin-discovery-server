@@ -161,8 +161,9 @@ exports.init = () => {
 
     console.log('REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
 
+    // LIST_TRADERS
     this.eventBus.on(`dagcoin.request.${this.commands.listTraders}`, (deviceAddress, message) => {
-        console.log('REACTING TO A REQUEST');
+        console.log(`REACTING TO A ${this.commands.listTraders} REQUEST`);
 
         var response = {
             messageType: self.commands.listTraders,
@@ -175,6 +176,15 @@ exports.init = () => {
             response.messageBody = {traders: nodes};
             self.sendResponse(deviceAddress, response);
         });
+    });
+
+    // ALIVE_AND_WELL
+    this.eventBus.on(`dagcoin.request.${this.commands.aliveAndWell}`, (deviceAddress, message) => {
+        console.log(`REACTING TO A ${this.commands.aliveAndWell} REQUEST`);
+
+        if (message.messageBody && message.messageBody.pairCode){
+            this.updatePairCode(deviceAddress, message.messageBody.pairCode);
+        }
     });
 
     console.log('FINISHED REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
