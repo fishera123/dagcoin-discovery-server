@@ -47,7 +47,7 @@ exports.insertFundingNodeMessage = (deviceAddress, status) => {
         return;
     }
 
-    db.query(
+    this.db.query(
         "SELECT device_address FROM funding_nodes WHERE device_address=?",
         [deviceAddress],
         function(rows){
