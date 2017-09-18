@@ -190,6 +190,8 @@ exports.init = () => {
     this.eventBus.on(`dagcoin.request.${this.commands.startingTheBusiness}`, (deviceAddress, message) => {
         console.log(`REACTING TO A ${message.messageType} REQUEST`);
 
+        self.insertFundingNodeMessage(deviceAddress, message.messageType);
+
         if (message.messageBody && message.messageBody.pairCode) {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
         }
@@ -208,6 +210,8 @@ exports.init = () => {
     // ALIVE_AND_WELL
     this.eventBus.on(`dagcoin.request.${this.commands.aliveAndWell}`, (deviceAddress, message) => {
         console.log(`REACTING TO A ${message.messageType} REQUEST`);
+
+        self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
         if (message.messageBody && message.messageBody.pairCode) {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
@@ -228,11 +232,47 @@ exports.init = () => {
     this.eventBus.on(`dagcoin.request.${this.commands.updateSettings}`, (deviceAddress, message) => {
         console.log(`REACTING TO A ${message.messageType} REQUEST`);
 
+        self.insertFundingNodeMessage(deviceAddress, message.messageType);
+
         var settings = message.messageBody.settings;
 
         if (settings) {
             this.updateSettings(deviceAddress, settings);
         }
+
+        const response = {
+            messageType: message.messageType
+        };
+
+        if(message.id) {
+            response.id = message.id;
+        }
+
+        self.sendResponse(deviceAddress, response);
+    });
+
+    // OUT OF BUSINESS
+    this.eventBus.on(`dagcoin.request.${this.commands.outOfBusiness}`, (deviceAddress, message) => {
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
+
+        self.insertFundingNodeMessage(deviceAddress, message.messageType);
+
+        const response = {
+            messageType: message.messageType
+        };
+
+        if(message.id) {
+            response.id = message.id;
+        }
+
+        self.sendResponse(deviceAddress, response);
+    });
+
+    // TEMPORARILY UNAVAILABLE
+    this.eventBus.on(`dagcoin.request.${this.commands.temporarilyUnavailable}`, (deviceAddress, message) => {
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
+
+        self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
         const response = {
             messageType: message.messageType
