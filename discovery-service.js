@@ -188,7 +188,8 @@ exports.init = () => {
         }
 
         self.sendResponse(deviceAddress, {
-            messageType: message.messageType
+            messageType: message.messageType,
+            id: message.id
         });
     });
 
@@ -201,7 +202,8 @@ exports.init = () => {
         }
 
         self.sendResponse(deviceAddress, {
-            messageType: message.messageType
+            messageType: message.messageType,
+            id: message.id
         });
     });
 
@@ -216,7 +218,8 @@ exports.init = () => {
         }
 
         self.sendResponse(deviceAddress, {
-            messageType: message.messageType
+            messageType: message.messageType,
+            id: message.id
         });
     });
 
