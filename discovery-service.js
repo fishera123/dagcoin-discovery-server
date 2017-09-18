@@ -172,10 +172,17 @@ exports.init = () => {
 
         self.getListOfFundingNodes(deviceAddress).then((listOfNodes) => {
             var nodes = listOfNodes || [];
-            self.sendResponse(deviceAddress, {
+
+            const response = {
                 messageType: message.messageType,
-                messageBody: {traders: nodes}
-            });
+                traders: nodes
+            };
+
+            if(message.id) {
+                response.id = message.id;
+            }
+
+            self.sendResponse(deviceAddress, response);
         });
     });
 
@@ -187,10 +194,15 @@ exports.init = () => {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
         }
 
-        self.sendResponse(deviceAddress, {
-            messageType: message.messageType,
-            id: message.id
-        });
+        const response = {
+            messageType: message.messageType
+        };
+
+        if(message.id) {
+            response.id = message.id;
+        }
+
+        self.sendResponse(deviceAddress, response);
     });
 
     // ALIVE_AND_WELL
@@ -201,10 +213,15 @@ exports.init = () => {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
         }
 
-        self.sendResponse(deviceAddress, {
-            messageType: message.messageType,
-            id: message.id
-        });
+        const response = {
+            messageType: message.messageType
+        };
+
+        if(message.id) {
+            response.id = message.id;
+        }
+
+        self.sendResponse(deviceAddress, response);
     });
 
     // UPDATE SETTINGS
@@ -217,10 +234,15 @@ exports.init = () => {
             this.updateSettings(deviceAddress, settings);
         }
 
-        self.sendResponse(deviceAddress, {
-            messageType: message.messageType,
-            id: message.id
-        });
+        const response = {
+            messageType: message.messageType
+        };
+
+        if(message.id) {
+            response.id = message.id;
+        }
+
+        self.sendResponse(deviceAddress, response);
     });
 
     console.log('FINISHED REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
