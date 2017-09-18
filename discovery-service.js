@@ -177,10 +177,10 @@ exports.init = () => {
 
             const response = {
                 messageType: message.messageType,
-                traders: nodes
+                messageBody: {traders: nodes}
             };
 
-            if(message.id) {
+            if (message.id) {
                 response.id = message.id;
             }
 
