@@ -47,15 +47,17 @@ exports.insertFundingNodeMessage = (deviceAddress, status) => {
         return;
     }
 
+    const self = this;
+
     this.db.query(
         "SELECT device_address FROM funding_nodes WHERE device_address=?",
         [deviceAddress],
         function(rows){
             if (rows.length > 0){
-                this.db.query("UPDATE funding_nodes SET status=?, status_date=DATETIME('now') WHERE device_address=?", [status, deviceAddress]);
+                self.db.query("UPDATE funding_nodes SET status=?, status_date=DATETIME('now') WHERE device_address=?", [status, deviceAddress]);
             }
             else{
-                this.db.query("INSERT INTO funding_nodes (status, device_address) VALUES (?,?)", [status, deviceAddress]);
+                self.db.query("INSERT INTO funding_nodes (status, device_address) VALUES (?,?)", [status, deviceAddress]);
             }
         }
     );
