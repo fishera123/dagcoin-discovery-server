@@ -26,7 +26,7 @@ exports.sendResponse = (deviceAddress, response) => {
             JSON.stringify(response),
             {
                 onSaved: function () {
-                    console.log(`A ${message.messageType} MESSAGE WAS SAVED INTO THE DATABASE`);
+                    console.log(`A ${response.messageType} MESSAGE WAS SAVED INTO THE DATABASE`);
                 },
                 ifOk: function () {
                     resolve();
