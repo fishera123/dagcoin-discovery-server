@@ -13,17 +13,30 @@ exports.commands = {
     unrecognized: 'UNRECOGNIZED'
 };
 
-exports.sendMessageToDevice = (deviceAddress, text) => {
-    this.device.sendMessageToDevice(deviceAddress, 'text', text);
-}
-
 exports.sendResponse = (deviceAddress, response) => {
+    const self = this;
+
     response.protocol = 'dagcoin';
     response.title = `response.${response.messageType}`;
 
-    var text = JSON.stringify(response);
-
-    this.sendMessageToDevice(deviceAddress, text);
+    return new Promise((resolve, reject) => {
+        self.device.sendMessageToDevice(
+            deviceAddress,
+            'text',
+            JSON.stringify(response),
+            {
+                onSaved: function () {
+                    console.log(`A ${message.messageType} MESSAGE WAS SAVED INTO THE DATABASE`);
+                },
+                ifOk: function () {
+                    resolve();
+                },
+                ifError: function (err) {
+                    reject(`COULD NOT DELIVER A ${message.messageType} MESSAGE. REASON: ${err}`)
+                }
+            }
+        );
+    });
 }
 
 exports.insertFundingNodeMessage = (deviceAddress, status) => {
@@ -66,37 +79,29 @@ exports.updatePairCode = (deviceAddress, pairCode) => {
 }
 
 exports.getListOfFundingNodes = (deviceAddress, callBack) => {
-    var result = [];
+    return new Promise((resolve) => {
+        var result = [];
 
-    this.db.query(
-        "SELECT device_address, exchange_fee, pair_code FROM funding_nodes WHERE device_address <> ? AND status = 'ALIVE_AND_WELL' AND DATETIME(status_date, '+10 minutes') > DATETIME('now')",
-        [deviceAddress],
-        function(rows){
-            if (rows.length > 0){
-                for (var i = 0; i < rows.length; i++) {
-                    result.push({
-                        deviceAddress: rows[i].device_address,
-                        exchangeFee: rows[i].exchange_fee,
-                        pairCode: rows[i].pair_code
-                    });
+        this.db.query(
+            "SELECT device_address, exchange_fee, pair_code FROM funding_nodes WHERE device_address <> ? AND status = 'ALIVE_AND_WELL' AND DATETIME(status_date, '+10 minutes') > DATETIME('now')",
+            [deviceAddress],
+            function(rows){
+                if (rows.length > 0) {
+                    for (var i = 0; i < rows.length; i++) {
+                        result.push({
+                            deviceAddress: rows[i].device_address,
+                            exchangeFee: rows[i].exchange_fee,
+                            pairCode: rows[i].pair_code
+                        });
+                    }
+
+                    resolve(result);
+                } else {
+                    resolve(null);
                 }
-
-                return callBack(result);
             }
-            else{
-                return callBack(null);
-            }
-        }
-    );
-}
-
-exports.isJsonString = (str) => {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
+        );
+    });
 }
 
 exports.processCommand = (deviceAddress, message) => {
@@ -121,11 +126,11 @@ exports.processCommand = (deviceAddress, message) => {
     this.insertFundingNodeMessage(deviceAddress, command);
 
     switch (command) {
-        case this.commands.startingTheBusiness:
+        // case this.commands.startingTheBusiness:
         case this.commands.temporarilyUnavailable:
         case this.commands.outOfBusiness:
             break;
-        case this.commands.aliveAndWell:
+        /*case this.commands.aliveAndWell:
             if (message.messageBody && message.messageBody.pairCode){
                 this.updatePairCode(deviceAddress, message.messageBody.pairCode);
             }
@@ -143,7 +148,7 @@ exports.processCommand = (deviceAddress, message) => {
             if (settings){
                 this.updateSettings(deviceAddress, settings);
             }
-            break;
+            break;*/
         default:
             response = {messageType: 'UNRECOGNIZED', messageBody: { command: command, request: text }, success: false};
             break;
@@ -163,28 +168,56 @@ exports.init = () => {
 
     // LIST_TRADERS
     this.eventBus.on(`dagcoin.request.${this.commands.listTraders}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${this.commands.listTraders} REQUEST`);
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
 
-        var response = {
-            messageType: self.commands.listTraders,
-            messageBody: null,
-            success: true
-        };
-
-        self.getListOfFundingNodes(deviceAddress, function(listOfNodes){
+        self.getListOfFundingNodes(deviceAddress).then((listOfNodes) => {
             var nodes = listOfNodes || [];
-            response.messageBody = {traders: nodes};
-            self.sendResponse(deviceAddress, response);
+            self.sendResponse(deviceAddress, {
+                messageType: message.messageType,
+                messageBody: {traders: nodes}
+            });
+        });
+    });
+
+    // STARTING THE BUSINESS
+    this.eventBus.on(`dagcoin.request.${this.commands.startingTheBusiness}`, (deviceAddress, message) => {
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
+
+        if (message.messageBody && message.messageBody.pairCode) {
+            this.updatePairCode(deviceAddress, message.messageBody.pairCode);
+        }
+
+        self.sendResponse(deviceAddress, {
+            messageType: message.messageType
         });
     });
 
     // ALIVE_AND_WELL
     this.eventBus.on(`dagcoin.request.${this.commands.aliveAndWell}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${this.commands.aliveAndWell} REQUEST`);
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
 
-        if (message.messageBody && message.messageBody.pairCode){
+        if (message.messageBody && message.messageBody.pairCode) {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
         }
+
+        self.sendResponse(deviceAddress, {
+            messageType: message.messageType
+        });
+    });
+
+    // UPDATE SETTINGS
+    this.eventBus.on(`dagcoin.request.${this.commands.updateSettings}`, (deviceAddress, message) => {
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
+
+        var settings = message.messageBody.settings;
+
+        if (settings) {
+            this.updateSettings(deviceAddress, settings);
+        }
+
+        self.sendResponse(deviceAddress, {
+            messageType: message.messageType
+        });
     });
 
     console.log('FINISHED REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
