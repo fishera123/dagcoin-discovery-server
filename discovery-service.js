@@ -26,7 +26,7 @@ exports.sendResponse = (deviceAddress, message, response) => {
             response.title = `response.${message.messageType}`;
         }
 
-        if (message.id) {
+        if (typeof message.id !== "undefined") {
             response.id = message.id;
         }
     } else {
