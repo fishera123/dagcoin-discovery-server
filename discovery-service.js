@@ -58,47 +58,79 @@ exports.insertFundingNodeMessage = (deviceAddress, status) => {
         this.commands.temporarilyUnavailable !== status &&
         this.commands.outOfBusiness !== status &&
         this.commands.aliveAndWell !== status) {
-        return;
+        return Promise.resolve();
     }
 
     const self = this;
 
-    this.db.query(
-        "SELECT device_address FROM funding_nodes WHERE device_address=?",
-        [deviceAddress],
-        function(rows){
-            if (rows.length > 0){
-                self.db.query("UPDATE funding_nodes SET status=?, status_date=DATETIME('now') WHERE device_address=?", [status, deviceAddress]);
+    return new Promise ((resolve) => {
+        self.db.query(
+            "SELECT device_address FROM funding_nodes WHERE device_address=?",
+            [deviceAddress],
+            function (rows) {
+                if (rows.length > 0) {
+                    self.db.query(
+                        "UPDATE funding_nodes SET status=?, status_date=DATETIME('now') WHERE device_address=?",
+                        [status, deviceAddress],
+                        () => {
+                            resolve();
+                        }
+                    );
+                } else {
+                    self.db.query(
+                        "INSERT INTO funding_nodes (status, device_address) VALUES (?,?)",
+                        [status, deviceAddress],
+                        () => {
+                            resolve();
+                        }
+                    );
+                }
             }
-            else{
-                self.db.query("INSERT INTO funding_nodes (status, device_address) VALUES (?,?)", [status, deviceAddress]);
-            }
-        }
-    );
+        );
+    });
 };
 
 exports.updateSettings = (deviceAddress, settings) => {
-    this.db.query(
-        "UPDATE funding_nodes SET exchange_fee=?, total_bytes=?, bytes_per_address=?, max_end_user_capacity=? WHERE device_address=?",
-        [
-            settings.exchangeFee,
-            settings.totalBytes,
-            settings.bytesPerAddress,
-            settings.maxEndUserCapacity,
-            deviceAddress
-        ]
-    );
+    const self = this;
+
+    return new Promise((resolve) => {
+        self.db.query(
+            "UPDATE funding_nodes SET exchange_fee=?, total_bytes=?, bytes_per_address=?, max_end_user_capacity=? WHERE device_address=?",
+            [
+                settings.exchangeFee,
+                settings.totalBytes,
+                settings.bytesPerAddress,
+                settings.maxEndUserCapacity,
+                deviceAddress
+            ],
+            () => {
+                resolve();
+            }
+        );
+    });
 };
 
 exports.updatePairCode = (deviceAddress, pairCode) => {
-    this.db.query("UPDATE funding_nodes SET pair_code=? WHERE device_address=?", [pairCode, deviceAddress]);
+    const self = this;
+
+    return new Promise((resolve) => {
+        self.db.query(
+            "UPDATE funding_nodes SET pair_code=? WHERE device_address=?",
+            [pairCode, deviceAddress],
+            () => {
+                resolve();
+            }
+        );
+    });
 };
 
-exports.getListOfFundingNodes = (deviceAddress, callBack) => {
+exports.getListOfFundingNodes = (deviceAddress) => {
+    const self = this;
+
     return new Promise((resolve) => {
         const result = [];
 
-        this.db.query(
+        self.db.query(
             "SELECT device_address, exchange_fee, pair_code FROM funding_nodes WHERE device_address <> ? AND status = 'ALIVE_AND_WELL' AND DATETIME(status_date, '+10 minutes') > DATETIME('now')",
             [deviceAddress],
             function(rows){
@@ -138,51 +170,55 @@ exports.init = () => {
 
     // STARTING THE BUSINESS
     this.eventBus.on(`dagcoin.request.${this.commands.startingTheBusiness}`, (deviceAddress, message) => {
-        self.insertFundingNodeMessage(deviceAddress, message.messageType);
-
-        if (message.messageBody && message.messageBody.pairCode) {
-            this.updatePairCode(deviceAddress, message.messageBody.pairCode);
-        }
-
-        self.sendResponse(deviceAddress, message, {});
+        self.insertFundingNodeMessage(deviceAddress, message.messageType).then(() => {
+            if (message.messageBody && message.messageBody.pairCode) {
+                return self.updatePairCode(deviceAddress, message.messageBody.pairCode);
+            } else {
+                return Promise.resolve();
+            }
+        }).then(() => {
+            self.sendResponse(deviceAddress, message, {});
+        });
     });
 
     // ALIVE_AND_WELL
     this.eventBus.on(`dagcoin.request.${this.commands.aliveAndWell}`, (deviceAddress, message) => {
-        self.insertFundingNodeMessage(deviceAddress, message.messageType);
-
-        if (message.messageBody && message.messageBody.pairCode) {
-            this.updatePairCode(deviceAddress, message.messageBody.pairCode);
-        }
-
-        self.sendResponse(deviceAddress, message, {});
+        self.insertFundingNodeMessage(deviceAddress, message.messageType).then(() => {
+            if (message.messageBody && message.messageBody.pairCode) {
+                return self.updatePairCode(deviceAddress, message.messageBody.pairCode);
+            } else {
+                return Promise.resolve();
+            }
+        }).then(() => {
+            self.sendResponse(deviceAddress, message, {});
+        });
     });
 
     // UPDATE SETTINGS
     this.eventBus.on(`dagcoin.request.${this.commands.updateSettings}`, (deviceAddress, message) => {
-        self.insertFundingNodeMessage(deviceAddress, message.messageType);
-
-        const settings = message.messageBody.settings;
-
-        if (settings) {
-            this.updateSettings(deviceAddress, settings);
-        }
-
-        self.sendResponse(deviceAddress, message, {});
+        self.insertFundingNodeMessage(deviceAddress, message.messageType).then(() => {
+            if (message.messageBody && message.messageBody.settings) {
+                this.updateSettings(deviceAddress, message.messageBody.settings);
+            } else {
+                return Promise.resolve();
+            }
+        }).then(() => {
+            self.sendResponse(deviceAddress, message, {});
+        });
     });
 
     // OUT OF BUSINESS
     this.eventBus.on(`dagcoin.request.${this.commands.outOfBusiness}`, (deviceAddress, message) => {
-        self.insertFundingNodeMessage(deviceAddress, message.messageType);
-
-        self.sendResponse(deviceAddress, message, {});
+        self.insertFundingNodeMessage(deviceAddress, message.messageType).then(() => {
+            self.sendResponse(deviceAddress, message, {});
+        });
     });
 
     // TEMPORARILY UNAVAILABLE
     this.eventBus.on(`dagcoin.request.${this.commands.temporarilyUnavailable}`, (deviceAddress, message) => {
-        self.insertFundingNodeMessage(deviceAddress, message.messageType);
-
-        self.sendResponse(deviceAddress, message, {});
+        self.insertFundingNodeMessage(deviceAddress, message.messageType).then(() => {
+            self.sendResponse(deviceAddress, message, {});
+        });
     });
 
     console.log('FINISHED REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
