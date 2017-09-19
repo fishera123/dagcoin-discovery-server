@@ -2,7 +2,7 @@
 "use strict";
 
 exports.bServeAsHub = false;
-exports.bLight = false;
+exports.bLight = true;
 exports.bIgnoreUnpairRequests = true;
 
 exports.storage = 'sqlite';

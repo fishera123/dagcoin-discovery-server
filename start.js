@@ -18,9 +18,9 @@ eventBus.on('headless_wallet_ready', function() {
 
 eventBus.on('paired', function (deviceAddress) {
     console.log('PAIR REQUEST');
-    // if (headlessWallet.isControlAddress(deviceAddress)) {
+    /* if (headlessWallet.isControlAddress(deviceAddress)) {
         headlessWallet.handlePairing(deviceAddress);
-    // }
+    } */
 });
 
 eventBus.on('text', function (deviceAddress, text) {
