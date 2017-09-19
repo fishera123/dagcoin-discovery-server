@@ -13,11 +13,25 @@ exports.commands = {
     unrecognized: 'UNRECOGNIZED'
 };
 
-exports.sendResponse = (deviceAddress, response) => {
+exports.sendResponse = (deviceAddress, message, response) => {
     const self = this;
 
     response.protocol = 'dagcoin';
-    response.title = `response.${response.messageType}`;
+
+    if (message) {
+        console.log(`REACTING TO A ${message.messageType} REQUEST`);
+
+        if (message.messageType) {
+            response.messageType = message.messageType;
+            response.title = `response.${message.messageType}`;
+        }
+
+        if (message.id) {
+            response.id = message.id;
+        }
+    } else {
+        console.log(`REACTING TO AN UNEXPECTED REQUEST`);
+    }
 
     return new Promise((resolve, reject) => {
         self.device.sendMessageToDevice(
@@ -37,7 +51,7 @@ exports.sendResponse = (deviceAddress, response) => {
             }
         );
     });
-}
+};
 
 exports.insertFundingNodeMessage = (deviceAddress, status) => {
     if (this.commands.startingTheBusiness !== status &&
@@ -61,7 +75,7 @@ exports.insertFundingNodeMessage = (deviceAddress, status) => {
             }
         }
     );
-}
+};
 
 exports.updateSettings = (deviceAddress, settings) => {
     this.db.query(
@@ -74,22 +88,22 @@ exports.updateSettings = (deviceAddress, settings) => {
             deviceAddress
         ]
     );
-}
+};
 
 exports.updatePairCode = (deviceAddress, pairCode) => {
     this.db.query("UPDATE funding_nodes SET pair_code=? WHERE device_address=?", [pairCode, deviceAddress]);
-}
+};
 
 exports.getListOfFundingNodes = (deviceAddress, callBack) => {
     return new Promise((resolve) => {
-        var result = [];
+        const result = [];
 
         this.db.query(
             "SELECT device_address, exchange_fee, pair_code FROM funding_nodes WHERE device_address <> ? AND status = 'ALIVE_AND_WELL' AND DATETIME(status_date, '+10 minutes') > DATETIME('now')",
             [deviceAddress],
             function(rows){
                 if (rows.length > 0) {
-                    for (var i = 0; i < rows.length; i++) {
+                    for (let i = 0; i < rows.length; i++) {
                         result.push({
                             deviceAddress: rows[i].device_address,
                             exchangeFee: rows[i].exchange_fee,
@@ -104,60 +118,7 @@ exports.getListOfFundingNodes = (deviceAddress, callBack) => {
             }
         );
     });
-}
-
-exports.processCommand = (deviceAddress, message) => {
-    if (!message) {
-        this.sendResponse(deviceAddress, {messageType: this.commands.unrecognized, messageBody: { request: 'EMPTY REQUEST' }, success: false});
-        return;
-    }
-
-    if (!message.messageType) {
-        this.sendResponse(deviceAddress, {messageType: this.commands.unrecognized, messageBody: { request: 'NO MESSAGE TYPE' }, success: false});
-        return;
-    }
-
-    const command = message.messageType.toUpperCase();
-
-    var response = {
-        messageType: command,
-        messageBody: null,
-        success: true
-    };
-
-    this.insertFundingNodeMessage(deviceAddress, command);
-
-    switch (command) {
-        // case this.commands.startingTheBusiness:
-        case this.commands.temporarilyUnavailable:
-        case this.commands.outOfBusiness:
-            break;
-        /*case this.commands.aliveAndWell:
-            if (message.messageBody && message.messageBody.pairCode){
-                this.updatePairCode(deviceAddress, message.messageBody.pairCode);
-            }
-            break;
-        case this.commands.listTraders:
-            this.getListOfFundingNodes(deviceAddress, function(listOfNodes){
-                var nodes = listOfNodes || [];
-                response.messageBody = {traders: nodes};
-                this.sendResponse(deviceAddress, response);
-            });
-            return;
-        case this.commands.updateSettings:
-            var settings = message.messageBody.settings;
-
-            if (settings){
-                this.updateSettings(deviceAddress, settings);
-            }
-            break;*/
-        default:
-            response = {messageType: 'UNRECOGNIZED', messageBody: { command: command, request: text }, success: false};
-            break;
-    }
-
-    this.sendResponse(deviceAddress, response);
-}
+};
 
 exports.init = () => {
     this.eventBus = require('byteballcore/event_bus.js');
@@ -170,122 +131,59 @@ exports.init = () => {
 
     // LIST_TRADERS
     this.eventBus.on(`dagcoin.request.${this.commands.listTraders}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${message.messageType} REQUEST`);
-
         self.getListOfFundingNodes(deviceAddress).then((listOfNodes) => {
-            var nodes = listOfNodes || [];
-
-            const response = {
-                messageType: message.messageType,
-                messageBody: {traders: nodes}
-            };
-
-            if (message.id) {
-                response.id = message.id;
-            }
-
-            self.sendResponse(deviceAddress, response);
+            self.sendResponse(deviceAddress, message, {messageBody: {traders: listOfNodes || []}});
         });
     });
 
     // STARTING THE BUSINESS
     this.eventBus.on(`dagcoin.request.${this.commands.startingTheBusiness}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${message.messageType} REQUEST`);
-
         self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
         if (message.messageBody && message.messageBody.pairCode) {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
         }
 
-        const response = {
-            messageType: message.messageType
-        };
-
-        if(message.id) {
-            response.id = message.id;
-        }
-
-        self.sendResponse(deviceAddress, response);
+        self.sendResponse(deviceAddress, message, {});
     });
 
     // ALIVE_AND_WELL
     this.eventBus.on(`dagcoin.request.${this.commands.aliveAndWell}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${message.messageType} REQUEST`);
-
         self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
         if (message.messageBody && message.messageBody.pairCode) {
             this.updatePairCode(deviceAddress, message.messageBody.pairCode);
         }
 
-        const response = {
-            messageType: message.messageType
-        };
-
-        if(message.id) {
-            response.id = message.id;
-        }
-
-        self.sendResponse(deviceAddress, response);
+        self.sendResponse(deviceAddress, message, {});
     });
 
     // UPDATE SETTINGS
     this.eventBus.on(`dagcoin.request.${this.commands.updateSettings}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${message.messageType} REQUEST`);
-
         self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
-        var settings = message.messageBody.settings;
+        const settings = message.messageBody.settings;
 
         if (settings) {
             this.updateSettings(deviceAddress, settings);
         }
 
-        const response = {
-            messageType: message.messageType
-        };
-
-        if(message.id) {
-            response.id = message.id;
-        }
-
-        self.sendResponse(deviceAddress, response);
+        self.sendResponse(deviceAddress, message, {});
     });
 
     // OUT OF BUSINESS
     this.eventBus.on(`dagcoin.request.${this.commands.outOfBusiness}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${message.messageType} REQUEST`);
-
         self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
-        const response = {
-            messageType: message.messageType
-        };
-
-        if(message.id) {
-            response.id = message.id;
-        }
-
-        self.sendResponse(deviceAddress, response);
+        self.sendResponse(deviceAddress, message, {});
     });
 
     // TEMPORARILY UNAVAILABLE
     this.eventBus.on(`dagcoin.request.${this.commands.temporarilyUnavailable}`, (deviceAddress, message) => {
-        console.log(`REACTING TO A ${message.messageType} REQUEST`);
-
         self.insertFundingNodeMessage(deviceAddress, message.messageType);
 
-        const response = {
-            messageType: message.messageType
-        };
-
-        if(message.id) {
-            response.id = message.id;
-        }
-
-        self.sendResponse(deviceAddress, response);
+        self.sendResponse(deviceAddress, message, {});
     });
 
     console.log('FINISHED REGISTERING LISTENERS WITHIN THE DISCOVERY SERVICE');
-}
+};
