@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
-    "headless-byteball": "git+https://github.com/byteball/headless-byteball.git"
+    "bitcore-lib": "^0.13.14",
+    "bitcore-mnemonic": "~1.0.0"
   },
   "devDependencies": {
     "jasmine": "^2.7.0"

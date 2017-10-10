@@ -1,7 +1,7 @@
 /*jslint node: true */
 "use strict";
 const eventBus = require('byteballcore/event_bus.js');
-const headlessWallet = require('headless-byteball');
+const headlessWallet = require('./components/headless');
 const ds = require('./discovery-service.js');
 
 eventBus.on('headless_wallet_ready', function() {
