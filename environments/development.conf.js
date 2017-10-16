@@ -19,4 +19,7 @@ exports.PASSPHRASE = '123'; //k5FKBpwOrPfu
 
 exports.port = 7000
 
+// temporary solution, until we have only one funding hub
+exports.FUNDING_HUB_ADDRESS = ''
+
 console.log('Finished server configuration');

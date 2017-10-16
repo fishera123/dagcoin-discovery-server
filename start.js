@@ -3,6 +3,7 @@
 const eventBus = require('byteballcore/event_bus.js');
 const headlessWallet = require('./components/headless');
 const ds = require('./discovery-service.js');
+const conf = require('byteballcore/conf.js');
 
 eventBus.on('headless_wallet_ready', function() {
     console.log('WALLET IS READY')
@@ -50,6 +51,10 @@ eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
  * @returns {Promise}
  */
 function processAsDagcoinMessage(deviceAddress, body) {
+    if(deviceAddress !== conf.FUNDING_HUB_ADDRESS) {
+        console.log('UNKNOWN FUNDING NODE IS TRYING TO PAIR');
+        return;
+    }
     console.log('PROCESSING MESSAGE AS DAGCOIN COMMAND');
 
     let message = null;
