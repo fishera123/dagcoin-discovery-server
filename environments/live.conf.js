@@ -17,6 +17,9 @@ exports.KEYS_FILENAME = 'keys.json';
 
 exports.PASSPHRASE = 'ILAGIN'; //WfwYsdXWJAFk
 
-exports.port = 7000
+exports.port = 7000;
+
+// temporary solution, until we have only one funding hub
+exports.FUNDING_HUB_ADDRESS = '0565VHSI4BBNETCMSXLBZKYS5SAVB5ZK2';
 
 console.log('Finished server configuration');

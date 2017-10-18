@@ -5,7 +5,8 @@ const headlessWallet = require('./components/headless');
 const ds = require('./discovery-service.js');
 
 eventBus.on('headless_wallet_ready', function() {
-    console.log('WALLET IS READY')
+    console.log('WALLET IS READY');
+
     try {
         console.log('REGISTERING LISTENERS ... ');
         ds.init();
