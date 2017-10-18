@@ -17,6 +17,6 @@ exports.KEYS_FILENAME = 'keys.json';
 
 exports.PASSPHRASE = '123'; //k5FKBpwOrPfu
 
-exports.port = 7000
+exports.port = 7000;
 
 console.log('Finished server configuration');
