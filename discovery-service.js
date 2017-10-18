@@ -63,6 +63,11 @@ exports.insertFundingNodeMessage = (deviceAddress, status) => {
 
     const self = this;
 
+    if(deviceAddress !== self.conf.FUNDING_HUB_ADDRESS) {
+        console.log(`UNKNOWN FUNDING NODE (${deviceAddress}) SENT ${status}`);
+        return Promise.reject(`UNKNOWN FUNDING NODE (${deviceAddress}) SENT ${status}`);
+    }
+
     return new Promise ((resolve) => {
         self.db.query(
             "SELECT device_address FROM funding_nodes WHERE device_address=?",
@@ -156,6 +161,7 @@ exports.init = () => {
     this.eventBus = require('byteballcore/event_bus.js');
     this.device = require('byteballcore/device.js');
     this.db = require('byteballcore/db.js');
+    this.conf = require('byteballcore/conf.js');
 
     const self = this;
 

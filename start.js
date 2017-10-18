@@ -51,10 +51,6 @@ eventBus.on('dagcoin.is-connected', (fromAddress, message) => {
  * @returns {Promise}
  */
 function processAsDagcoinMessage(deviceAddress, body) {
-    if(deviceAddress !== conf.FUNDING_HUB_ADDRESS) {
-        console.log('UNKNOWN FUNDING NODE IS TRYING TO PAIR');
-        return;
-    }
     console.log('PROCESSING MESSAGE AS DAGCOIN COMMAND');
 
     let message = null;
