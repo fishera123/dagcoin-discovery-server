@@ -17,7 +17,7 @@ exports.KEYS_FILENAME = 'keys.json';
 
 exports.PASSPHRASE = '123'; //k5FKBpwOrPfu
 
-exports.port = 7000
+exports.port = 7000;
 
 // temporary solution, until we have only one funding hub
 exports.FUNDING_HUB_ADDRESS = ''
