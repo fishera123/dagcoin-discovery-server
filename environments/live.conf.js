@@ -7,6 +7,8 @@ exports.bIgnoreUnpairRequests = true;
 
 exports.storage = 'sqlite';
 
+exports.sentryUrl = 'https://1092710facda45fc947d0541b549e489:a89a8dda6a614139b277eaa93a366182@sentry.io/241489';
+
 exports.hub = 'byteball.org/bb';
 exports.deviceName = 'Livenet-Discovery-Service';
 exports.permanent_pairing_secret = '0000'; //3mtSX6giZQLu
