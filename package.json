@@ -19,10 +19,11 @@
     "secp256k1": "secp256k1/js"
   },
   "dependencies": {
-    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
     "bitcore-lib": "^0.13.14",
-    "bitcore-mnemonic": "~1.0.0",
     "dagcoin-core": "/home/yribero/WebstormProjects/dagcoin-core"
+    "bitcore-mnemonic": "~1.0.0",
+    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
+    "raven": "^2.2.1"
   },
   "devDependencies": {
     "jasmine": "^2.7.0"

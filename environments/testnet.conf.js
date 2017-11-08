@@ -8,6 +8,8 @@ exports.bIgnoreUnpairRequests = true;
 exports.storage = 'sqlite';
 
 exports.hub = 'testnetexplorer.dagcoin.org/wss/';
+exports.sentryUrl = 'https://1092710facda45fc947d0541b549e489:a89a8dda6a614139b277eaa93a366182@sentry.io/241489';
+exports.env = 'testnet';
 exports.deviceName = 'Testnet-Discovery-Service';
 exports.permanent_pairing_secret = '0000'; //dCHcrhoJq56t
 exports.control_addresses = [];

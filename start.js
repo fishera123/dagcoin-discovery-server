@@ -5,6 +5,14 @@ const accountManager = require('dagcoin-core/accountManager').getInstance();
 const exceptionManager = require('dagcoin-core/exceptionManager');
 const eventBus = require('byteballcore/event_bus.js');
 const databaseManager = require('dagcoin-core/databaseManager').getInstance();
+const Raven = require('raven');
+
+if (conf.sentryUrl) {
+    Raven.config(conf.sentryUrl, {
+        sendTimeout: 5,
+        environment: conf.environment
+    }).install();
+}
 
 databaseManager.onReady().then(() => {
     return accountManager.readAccount().then(() => {
@@ -20,4 +28,5 @@ databaseManager.onReady().then(() => {
     });
 }).catch((e) => {
     exceptionManager.logError(e);
+    Raven.captureException(e);
 });
