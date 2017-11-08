@@ -21,7 +21,8 @@
   "dependencies": {
     "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
     "bitcore-lib": "^0.13.14",
-    "bitcore-mnemonic": "~1.0.0"
+    "bitcore-mnemonic": "~1.0.0",
+    "dagcoin-core": "/home/yribero/WebstormProjects/dagcoin-core"
   },
   "devDependencies": {
     "jasmine": "^2.7.0"
