@@ -17,7 +17,7 @@ exports.payout_address = 'WHERE THE MONEY CAN BE SENT TO';
 
 exports.KEYS_FILENAME = 'keys.json';
 
-exports.PASSPHRASE = 'Av3ryunique0rE'; //a1inc1McvriH
+exports.passPhrase = 'Av3ryunique0rE'; //a1inc1McvriH
 
 exports.port = 7000;
 

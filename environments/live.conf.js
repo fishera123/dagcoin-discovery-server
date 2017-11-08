@@ -17,7 +17,7 @@ exports.payout_address = 'WHERE THE MONEY CAN BE SENT TO';
 
 exports.KEYS_FILENAME = 'keys.json';
 
-exports.PASSPHRASE = 'ILAGIN'; //WfwYsdXWJAFk
+exports.passPhrase = 'ILAGIN'; //WfwYsdXWJAFk
 
 exports.port = 7000;
 

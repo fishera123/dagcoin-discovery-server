@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "bitcore-lib": "^0.13.14",
-    "dagcoin-core": "/home/yribero/WebstormProjects/dagcoin-core"
+    "dagcoin-core": "/home/yribero/WebstormProjects/dagcoin-core",
     "bitcore-mnemonic": "~1.0.0",
     "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
     "raven": "^2.2.1"

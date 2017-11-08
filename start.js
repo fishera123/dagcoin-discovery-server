@@ -6,6 +6,7 @@ const exceptionManager = require('dagcoin-core/exceptionManager');
 const eventBus = require('byteballcore/event_bus.js');
 const databaseManager = require('dagcoin-core/databaseManager').getInstance();
 const Raven = require('raven');
+const conf = require('byteballcore/conf');
 
 if (conf.sentryUrl) {
     Raven.config(conf.sentryUrl, {
