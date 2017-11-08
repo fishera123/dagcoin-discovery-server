@@ -21,10 +21,7 @@ databaseManager.onReady().then(() => {
         const ds = require('./discovery-service.js').getInstance();
 
         eventBus.on('paired', function (deviceAddress) {
-            console.log('PAIR REQUEST');
-            /* if (headlessWallet.isControlAddress(deviceAddress)) {
-                headlessWallet.handlePairing(deviceAddress);
-            } */
+            console.log(`PAIR REQUEST FROM ${deviceAddress}`);
         });
     });
 }).catch((e) => {
