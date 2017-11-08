@@ -3,6 +3,14 @@
 const eventBus = require('byteballcore/event_bus.js');
 const headlessWallet = require('./components/headless');
 const ds = require('./discovery-service.js');
+const Raven = require('raven');
+
+if (conf.sentryUrl) {
+  Raven.config(conf.sentryUrl, {
+    sendTimeout: 5,
+    environment: conf.environment
+  }).install();
+}
 
 eventBus.on('headless_wallet_ready', function() {
     console.log('WALLET IS READY');
@@ -12,6 +20,7 @@ eventBus.on('headless_wallet_ready', function() {
         ds.init();
         console.log('DONE REGISTERING LISTENERS');
     } catch(e) {
+        Raven.captureException(e);
         console.error(e);
         process.exit();
     }
@@ -58,6 +67,7 @@ function processAsDagcoinMessage(deviceAddress, body) {
     try {
         message = JSON.parse(body);
     } catch (err) {
+        Raven.captureException(err);
         console.log(`NEW MESSAGE FROM ${deviceAddress}: ${body} NOT A JSON MESSAGE: ${err}`);
         return;
     }
