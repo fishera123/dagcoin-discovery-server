@@ -28,7 +28,7 @@ function DiscoveryService() {
             self.deviceManager.sendResponse(
                 deviceAddress,
                 this.commands.listTraders,
-                {traders: listOfNodes || []},
+                {traders: listOfNodes},
                 message.id
             );
         });
@@ -190,7 +190,7 @@ DiscoveryService.prototype.getListOfFundingNodes = function (deviceAddress) {
 
             return Promise.resolve(result);
         } else {
-            return Promise.resolve(null);
+            return Promise.resolve([]);
         }
     });
 };
