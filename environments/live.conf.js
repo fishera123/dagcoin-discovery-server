@@ -17,11 +17,13 @@ exports.payout_address = 'WHERE THE MONEY CAN BE SENT TO';
 
 exports.KEYS_FILENAME = 'keys.json';
 
-exports.PASSPHRASE = 'ILAGIN'; //WfwYsdXWJAFk
+exports.passPhrase = 'ILAGIN'; //WfwYsdXWJAFk
 
 exports.port = 7000;
 
 // temporary solution, until we have only one funding hub
 exports.FUNDING_HUB_ADDRESS = '0565VHSI4BBNETCMSXLBZKYS5SAVB5ZK2';
+exports.CONSOLIDATION_INTERVAL = 60 * 60 * 1000;
+exports.DAGCOIN_MESSAGE_TIMEOUT = 30 * 1000;
 
 console.log('Finished server configuration');
