@@ -7,6 +7,7 @@ const eventBus = require('byteballcore/event_bus.js');
 const databaseManager = require('dagcoin-core/databaseManager').getInstance();
 const Raven = require('raven');
 const conf = require('byteballcore/conf');
+const osManager = require('dagcoin-core/operatingSystemManager').getInstance();
 
 if (conf.sentryUrl) {
     Raven.config(conf.sentryUrl, {
@@ -16,6 +17,8 @@ if (conf.sentryUrl) {
 }
 
 databaseManager.onReady().then(() => {
+    return databaseManager.checkOrUpdateDatabase();
+}).then(() => {
     return accountManager.readAccount().then(() => {
         const deviceMgr = require('dagcoin-core/deviceManager').getInstance();
         const ds = require('./discovery-service.js').getInstance();
@@ -27,4 +30,5 @@ databaseManager.onReady().then(() => {
 }).catch((e) => {
     exceptionManager.logError(e);
     Raven.captureException(e);
+    osManager.shutDown();
 });

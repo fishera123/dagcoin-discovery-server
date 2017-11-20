@@ -1,6 +1,8 @@
 /*jslint node: true */
 "use strict";
 
+exports.environment='test';
+
 exports.bServeAsHub = false;
 exports.bLight = true;
 exports.bIgnoreUnpairRequests = true;
@@ -25,5 +27,7 @@ exports.port = 7000;
 exports.FUNDING_HUB_ADDRESS = '0A5DATV2A3XFAWFMHZUT7DJXZTZRAD6G2';
 exports.CONSOLIDATION_INTERVAL = 60 * 60 * 1000;
 exports.DAGCOIN_MESSAGE_TIMEOUT = 30 * 1000;
+
+exports.DATABASE_MIGRATION_TOOL = "native-queries"; // CAN BE native-queries OR db-migrate
 
 console.log('Finished server configuration');
