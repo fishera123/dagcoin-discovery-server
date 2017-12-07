@@ -20,9 +20,9 @@
   },
   "dependencies": {
     "bitcore-lib": "^0.13.14",
-    "dagcoin-core": "0.4.2",
+    "dagcoin-core": "0.6.2",
     "bitcore-mnemonic": "~1.0.0",
-    "byteballcore": "git+https://github.com/byteball/byteballcore.git#testnet",
+    "byteballcore": "git+https://github.com/byteball/byteballcore.git",
     "raven": "^2.2.1"
   },
   "devDependencies": {
