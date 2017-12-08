@@ -10,4 +10,6 @@ rm conf.js
 
 npm install
 
+npm dedupe
+
 cp "environments/$1.conf.js" conf.js

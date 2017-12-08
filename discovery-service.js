@@ -4,8 +4,8 @@ let instance = null;
 
 function DiscoveryService() {
     this.eventBus = require('byteballcore/event_bus');
-    this.deviceManager = require('dagcoin-core/deviceManager').getInstance();
-    this.dbManager = require('dagcoin-core/databaseManager').getInstance();
+    this.deviceManager = require('dagcoin-core/lib/deviceManager').getInstance();
+    this.dbManager = require('dagcoin-core/lib/databaseManager').getInstance();
     this.conf = require('byteballcore/conf.js');
 
     this.commands = {
