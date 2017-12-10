@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "dagcoin-core": "0.6.2",
-    "byteballcore": "^0.2.9",
+    "byteballcore": "^0.2.83",
     "bitcore-lib": "^0.13.14",
     "bitcore-mnemonic": "~1.0.0",
     "raven": "^2.2.1"
